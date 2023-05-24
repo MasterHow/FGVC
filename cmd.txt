@@ -1,0 +1,56 @@
+# 镜像
+reg.supremind.info/songqinglong/vehicleidentification:workspace_11.2
+
+# 环境配置
+pip install imutils
+pip install imageio
+pip install scikit-image
+pip install imageio-ffmpeg
+
+# 数据传输
+上传
+scp -P 40272 D:\data_odometry_complete_voxels_all_0.1.zip root@ssh.atom.ks.supremind.info:/workspace/mnt/storage/shihao/SSC-HighRes/SemanticKITTI_Voxels_All
+下载
+scp -P 40272 root@ssh.atom.ks.supremind.info:/workspace/mnt/storage/shihao/MyCode-01/FGVC/result/InFoV_00000100.zip D:\
+
+# 仓库地址
+cd /workspace/mnt/storage/shihao/MyCode-01/FGVC
+
+# 数据地址
+/workspace/mnt/storage/shihao/VI/KITTI-360EX/InnerSphere/JPEGImages
+向内拓展
+/workspace/mnt/storage/shihao/MyCode-01/FGVC/data/InFoV/00000100  *3
+向内fov20 mask
+/workspace/mnt/storage/shihao/MyCode-01/FGVC/data/InFoV/mask/00000719
+向外拓展
+/workspace/mnt/storage/shihao/MyCode-01/FGVC/data/OutFoV/00000100 *3
+向外fov20 mask
+/workspace/mnt/storage/shihao/MyCode-01/FGVC/data/OutFoV/mask/00000722
+
+# 解压到指定目录
+unzip -d /workspace/mnt/storage/shihao/MyCode-01/FGVC/data/OutFoV/00000300 00000300.zip
+
+# 复制到制定目录
+cp -r /workspace/mnt/storage/shihao/VI/KITTI-360EX/InnerSphere/test_masks/seq10/fov20/00000719 /workspace/mnt/storage/shihao/MyCode-01/FGVC/data/InFoV/mask
+
+# 测试demo代码
+python video_completion.py \
+       --mode object_removal \
+       --path ../data/tennis \
+       --path_mask ../data/tennis_mask \
+       --outroot ../result/tennis_removal \
+       --seamless
+
+# KITTI360-EX推理
+python video_completion.py \
+       --mode object_removal \
+       --path /workspace/mnt/storage/shihao/MyCode-01/FGVC/data/InFoV/00000100 \
+       --path_mask /workspace/mnt/storage/shihao/MyCode-01/FGVC/data/InFoV/mask/00000719 \
+       --outroot ../result/InFoV_00000100
+
+python video_completion.py \
+       --mode object_removal \
+       --path /workspace/mnt/storage/shihao/MyCode-01/FGVC/data/OutFoV/00000100 \
+       --path_mask /workspace/mnt/storage/shihao/MyCode-01/FGVC/data/OutFoV/mask/00000722 \
+       --outroot ../result/OutFoV_00000100 \
+       --resize 376 680

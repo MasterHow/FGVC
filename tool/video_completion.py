@@ -2,6 +2,7 @@ import os
 import sys
 sys.path.append(os.path.abspath(os.path.join(__file__, '..', '..')))
 
+import time
 import argparse
 import os
 import cv2
@@ -455,13 +456,22 @@ def video_completion(args):
                     glob.glob(os.path.join(args.path, '*.jpg'))
 
     # Obtains imgH, imgW and nFrame.
-    imgH, imgW = np.array(Image.open(filename_list[0])).shape[:2]
+    if args.resize is None:
+        imgH, imgW = np.array(Image.open(filename_list[0])).shape[:2]
+    else:
+        # args.resize = [680,376]
+        imgH, imgW = args.resize
     nFrame = len(filename_list)
 
     # Loads video.
     video = []
     for filename in sorted(filename_list):
-        video.append(torch.from_numpy(np.array(Image.open(filename)).astype(np.uint8)[..., :3]).permute(2, 0, 1).float())
+        if args.resize is None:
+            video.append(torch.from_numpy(
+                np.array(Image.open(filename)).astype(np.uint8)[..., :3]).permute(2, 0, 1).float())
+        else:
+            video.append(F.resize(torch.from_numpy(
+                np.array(Image.open(filename)).astype(np.uint8)[..., :3]).permute(2, 0, 1), (imgH, imgW)).float())
 
     video = torch.stack(video, dim=0)
     video = video.to('cuda')
@@ -492,6 +502,8 @@ def video_completion(args):
         flow_mask = []
         for filename in sorted(filename_list):
             mask_img = np.array(Image.open(filename).convert('L'))
+            if args.resize is not None:
+                mask_img = np.resize(mask_img, (imgH, imgW))
             mask.append(mask_img)
 
             # Dilate 15 pixel so that all known pixel is trustworthy
@@ -774,10 +786,15 @@ def main(args):
         "Accepted modes: 'object_removal', 'video_extrapolation', but input is %s"
     ) % mode
 
+    time_start = time.time()
+
     if args.seamless:
         video_completion_seamless(args)
     else:
         video_completion(args)
+
+    time_end = time.time()
+    print('Infer time:', time_end-time_start)
 
 
 if __name__ == '__main__':
@@ -809,6 +826,10 @@ if __name__ == '__main__':
     # extrapolation
     parser.add_argument('--H_scale', dest='H_scale', default=2, type=float, help='H extrapolation scale')
     parser.add_argument('--W_scale', dest='W_scale', default=2, type=float, help='W extrapolation scale')
+
+    # resize for corr
+    parser.add_argument('--resize', default=None, nargs='+', type=int,
+                        help="resize video to [H, W] for avoiding corr sample bug (%8). eg: 376 680")
 
     args = parser.parse_args()
 
