@@ -411,13 +411,13 @@ def complete_flow(args, corrFlow, flow_mask, mode, edge=None):
                 flow[:, :, 1, 1] = rf.regionfill(flow[:, :, 1, 1], flow_mask[:, :, nFrame // 2])
                 flow[:, :, 0, 2] = rf.regionfill(flow[:, :, 0, 2], flow_mask[:, :, nFrame - 1])
                 flow[:, :, 1, 2] = rf.regionfill(flow[:, :, 1, 2], flow_mask[:, :, nFrame - 1])
-        # # Flow visualization.
-        # flow_img = utils.flow_viz.flow_to_image(compFlow[:, :, :, i])
-        # flow_img = Image.fromarray(flow_img)
-        #
-        # # Saves the flow and flow_img.
-        # flow_img.save(os.path.join(args.outroot, 'flow_comp', mode + '_png', '%05d.png'%i))
-        # utils.frame_utils.writeFlow(os.path.join(args.outroot, 'flow_comp', mode + '_flo', '%05d.flo'%i), compFlow[:, :, :, i])
+        # Flow visualization.
+        flow_img = utils.flow_viz.flow_to_image(compFlow[:, :, :, i])
+        flow_img = Image.fromarray(flow_img)
+
+        # Saves the flow and flow_img.
+        flow_img.save(os.path.join(args.outroot, 'flow_comp', mode + '_png', '%05d.png'%i))
+        utils.frame_utils.writeFlow(os.path.join(args.outroot, 'flow_comp', mode + '_flo', '%05d.flo'%i), compFlow[:, :, :, i])
 
     return compFlow
 

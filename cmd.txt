@@ -48,6 +48,7 @@ python video_completion.py \
        --path_mask /workspace/mnt/storage/shihao/MyCode-01/FGVC/data/InFoV/mask/00000719 \
        --outroot ../result/InFoV_00000300
 Infer time: 1168.1362664699554
+Infer time: 902.89 / 926.75 / 932.64
 
 python video_completion.py \
        --mode object_removal \
