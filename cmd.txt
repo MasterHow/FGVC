@@ -11,7 +11,7 @@ pip install imageio-ffmpeg
 上传
 scp -P 40272 D:\data_odometry_complete_voxels_all_0.1.zip root@ssh.atom.ks.supremind.info:/workspace/mnt/storage/shihao/SSC-HighRes/SemanticKITTI_Voxels_All
 下载
-scp -P 40272 root@ssh.atom.ks.supremind.info:/workspace/mnt/storage/shihao/MyCode-01/FGVC/result/InFoV_00000100.zip D:\
+scp -P 40272 root@ssh.atom.ks.supremind.info:/workspace/mnt/storage/shihao/MyCode-01/FGVC/result/OutFoV_00000100.zip D:\
 
 # 仓库地址
 cd /workspace/mnt/storage/shihao/MyCode-01/FGVC
@@ -44,9 +44,10 @@ python video_completion.py \
 # KITTI360-EX推理
 python video_completion.py \
        --mode object_removal \
-       --path /workspace/mnt/storage/shihao/MyCode-01/FGVC/data/InFoV/00000100 \
+       --path /workspace/mnt/storage/shihao/MyCode-01/FGVC/data/InFoV/00000300 \
        --path_mask /workspace/mnt/storage/shihao/MyCode-01/FGVC/data/InFoV/mask/00000719 \
-       --outroot ../result/InFoV_00000100
+       --outroot ../result/InFoV_00000300
+Infer time: 1168.1362664699554
 
 python video_completion.py \
        --mode object_removal \

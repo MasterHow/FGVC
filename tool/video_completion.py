@@ -463,15 +463,34 @@ def video_completion(args):
         imgH, imgW = args.resize
     nFrame = len(filename_list)
 
-    # Loads video.
+    # # Loads video.
+    # video = []
+    # for filename in sorted(filename_list):
+    #     if args.resize is None:
+    #         video.append(torch.from_numpy(
+    #             np.array(Image.open(filename)).astype(np.uint8)[..., :3]).permute(2, 0, 1).float())
+    #     else:
+    #         video.append(F.resize(torch.from_numpy(
+    #             np.array(Image.open(filename)).astype(np.uint8)[..., :3]).permute(2, 0, 1), (imgH, imgW)).float())
+
+    # Loads video and mask frame. 在装载视频时就应该mask掉图像，防止光流使用完整图像计算; 因为视频编辑和外扩都默认已知图像内容
+    mask_name_list = glob.glob(os.path.join(args.path_mask, '*.png')) + \
+                    glob.glob(os.path.join(args.path_mask, '*.jpg'))
+    assert len(filename_list) == len(mask_name_list)
     video = []
-    for filename in sorted(filename_list):
+    for filename, mask_name in zip(sorted(filename_list), sorted(mask_name_list)):
+        mask_img = np.array(Image.open(mask_name).convert('L'))
+        if args.resize is not None:
+            mask_img = cv2.resize(mask_img, (imgW, imgH), interpolation=cv2.INTER_NEAREST)
+        mask_img = mask_img.astype(bool)
         if args.resize is None:
             video.append(torch.from_numpy(
-                np.array(Image.open(filename)).astype(np.uint8)[..., :3]).permute(2, 0, 1).float())
+                np.array(Image.open(filename)).astype(np.uint8)[..., :3]).permute(2, 0, 1)
+                         .float()*(~mask_img))
         else:
             video.append(F.resize(torch.from_numpy(
-                np.array(Image.open(filename)).astype(np.uint8)[..., :3]).permute(2, 0, 1), (imgH, imgW)).float())
+                np.array(Image.open(filename)).astype(np.uint8)[..., :3]).permute(2, 0, 1), (imgH, imgW))
+                         .float()*(~mask_img))
 
     video = torch.stack(video, dim=0)
     video = video.to('cuda')
